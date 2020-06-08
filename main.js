@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 
 // Set development:
 process.env.DOT_ENV = 'development';
@@ -12,11 +12,19 @@ let aboutWindow;
 const createMainWindow = () => {
   mainWindow = new BrowserWindow({
     title: 'Honey I shrunk the images',
-    width: 500,
+    width: isDev ? 800 : 500,
     height: 600,
     icon: `${__dirname}/assets/icons/Icon_256x256.png`,
     resizable: isDev,
+    backgroundColor: 'white',
+    webPreferences: {
+      nodeIntegration: true,
+    }
   })
+
+  if (isDev) {
+    mainWindow.webContents.openDevTools();
+  }
   // mainwindow.loadURL(`file://${__dirname}/app/index.html`)
   mainWindow.loadFile('./app/index.html')
 }
@@ -31,6 +39,10 @@ const createAboutWindow = () => {
   // aboutwindow.loadURL(`file://${__dirname}/app/index.html`)
   aboutWindow.loadFile('./app/about.html')
 }
+
+ipcMain.on('image:minimize', (e, options) => {
+  console.log('ipcMain, ', options);
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
