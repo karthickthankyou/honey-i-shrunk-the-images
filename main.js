@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 
 // Set development:
 process.env.DOT_ENV = 'development';
@@ -8,6 +8,7 @@ const isMac = process.platform === 'darwin' ? true : false;
 console.log('Platform: ', process.platform);
 
 let mainWindow;
+let aboutWindow;
 const createMainWindow = () => {
   mainWindow = new BrowserWindow({
     title: 'Honey I shrunk the images',
@@ -18,6 +19,17 @@ const createMainWindow = () => {
   })
   // mainwindow.loadURL(`file://${__dirname}/app/index.html`)
   mainWindow.loadFile('./app/index.html')
+}
+const createAboutWindow = () => {
+  aboutWindow = new BrowserWindow({
+    title: 'About',
+    width: 300,
+    height: 300,
+    icon: `${__dirname}/assets/icons/Icon_256x256.png`,
+    resizable: false,
+  })
+  // aboutwindow.loadURL(`file://${__dirname}/app/index.html`)
+  aboutWindow.loadFile('./app/about.html')
 }
 
 // Quit when all windows are closed.
@@ -38,18 +50,33 @@ app.on('activate', () => {
 })
 
 const menu = [
-  ...(isMac ? [{ role: 'appMenu' }] : []),
-  {
-    label: 'file',
+  ...(isMac ? [{
+    label: app.name,
     submenu: [
       {
-        label: 'Quit',
-        // accelerator: isMac ? 'Command+W' : 'Ctrl+W',
-        accelerator: 'CmdOrCtrl+W',
-        click: () => app.quit()
+        label: 'About',
+        click: createAboutWindow
       }
     ]
-  }
+  }] : []),
+  {
+    role: 'fileMenu'
+  },
+  ...(isDev
+    ? [
+      {
+        label: 'Developer',
+        submenu: [
+          { role: 'reload' },
+          { role: 'forcereload' },
+          { type: 'separator' },
+          { role: 'toggledevtools' },
+        ],
+      },
+    ]
+    : []),
+
+
 
 ]
 
@@ -58,8 +85,8 @@ app.on('ready', () => {
   const mainMenu = Menu.buildFromTemplate(menu)
   Menu.setApplicationMenu(mainMenu);
 
-  globalShortcut.register('CmdOrCtrl+R', () => mainWindow.reload());
-  globalShortcut.register(isMac ? 'Command+Alt+i' : 'Ctrl+Shift+i', () => mainWindow.toggleDevTools());
+  // globalShortcut.register('CmdOrCtrl+R', () => mainWindow.reload());
+  // globalShortcut.register(isMac ? 'Command+Alt+i' : 'Ctrl+Shift+i', () => mainWindow.toggleDevTools());
 
   mainWindow.on('closed', () => mainWindow = null)
 });
