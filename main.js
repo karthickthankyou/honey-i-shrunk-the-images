@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
 
 // Set development:
 process.env.DOT_ENV = 'development';
@@ -9,7 +9,7 @@ console.log('Platform: ', process.platform);
 
 let mainWindow;
 const createMainWindow = () => {
-  mainwindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     title: 'Honey I shrunk the images',
     width: 500,
     height: 600,
@@ -17,7 +17,7 @@ const createMainWindow = () => {
     resizable: isDev,
   })
   // mainwindow.loadURL(`file://${__dirname}/app/index.html`)
-  mainwindow.loadFile('./app/index.html')
+  mainWindow.loadFile('./app/index.html')
 }
 
 // Quit when all windows are closed.
@@ -37,4 +37,29 @@ app.on('activate', () => {
   }
 })
 
-app.on('ready', createMainWindow);
+const menu = [
+  ...(isMac ? [{ role: 'appMenu' }] : []),
+  {
+    label: 'file',
+    submenu: [
+      {
+        label: 'Quit',
+        // accelerator: isMac ? 'Command+W' : 'Ctrl+W',
+        accelerator: 'CmdOrCtrl+W',
+        click: () => app.quit()
+      }
+    ]
+  }
+
+]
+
+app.on('ready', () => {
+  createMainWindow();
+  const mainMenu = Menu.buildFromTemplate(menu)
+  Menu.setApplicationMenu(mainMenu);
+
+  globalShortcut.register('CmdOrCtrl+R', () => mainWindow.reload());
+  globalShortcut.register(isMac ? 'Command+Alt+i' : 'Ctrl+Shift+i', () => mainWindow.toggleDevTools());
+
+  mainWindow.on('closed', () => mainWindow = null)
+});
