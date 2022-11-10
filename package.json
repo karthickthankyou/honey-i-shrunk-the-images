@@ -15,7 +15,7 @@
   "author": "Karthick Ragavendran <karthickthankyou@gmail.com> (karthickr.me)",
   "license": "ISC",
   "devDependencies": {
-    "electron": "11.5.0",
+    "electron": "18.3.7",
     "electron-packager": "14.2.1"
   },
   "dependencies": {
